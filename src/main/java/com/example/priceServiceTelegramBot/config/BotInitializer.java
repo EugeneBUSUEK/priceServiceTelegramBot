@@ -1,6 +1,6 @@
 package com.example.priceServiceTelegramBot.config;
 
-import com.example.priceServiceTelegramBot.service.TelegramBot;
+import com.example.priceServiceTelegramBot.controller.TelegramBot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;

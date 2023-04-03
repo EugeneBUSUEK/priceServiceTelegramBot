@@ -1,9 +1,8 @@
-package com.example.priceServiceTelegramBot.service;
+package com.example.priceServiceTelegramBot.controller;
 
-import com.example.priceServiceTelegramBot.command.AnyCommand;
-import com.example.priceServiceTelegramBot.command.CommandFactory;
-import com.example.priceServiceTelegramBot.command.CommandType;
 import com.example.priceServiceTelegramBot.config.BotConfig;
+import com.example.priceServiceTelegramBot.config.keyboard.impl.StartKeyBoard;
+import com.example.priceServiceTelegramBot.service.MainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -18,17 +17,18 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     final BotConfig config;
 
-    final CommandFactory commandFactory;
+    final MainService service;
+
+    final StartKeyBoard startKeyBoard;
 
     @Override
     public void onUpdateReceived(Update update) {
 
         if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
-            String commandWord = messageText.substring(1).toUpperCase();
-            AnyCommand command = commandFactory.createCommand(CommandType.getCommandType(commandWord));
-            String answer = command.execute(update.getMessage().getChatId(), update.getMessage().getChat().getFirstName());
-            sendMessage(update.getMessage().getChatId(), answer);
+            Long chatId = update.getMessage().getChatId();
+            String answer = service.getAnswer(messageText);
+            sendMessage(chatId, answer);
         }
     }
 
@@ -44,6 +44,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private void sendMessage(Long chatId, String text) {
         SendMessage message = new SendMessage(String.valueOf(chatId), text);
+        message.setReplyMarkup(startKeyBoard.getReplyKeyboardMarkup());
         try {
             execute(message);
         } catch (TelegramApiException e) {
